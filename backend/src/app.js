@@ -17,6 +17,14 @@ app.get("/user", async (req, res) => {
     res.status(400).send("Something went wrong !!");
   }
 });
+app.get("/feed", async (req, res) => {
+  try {
+    const feeds = await User.find();
+    res.send(feeds);
+  } catch {
+    res.status(400).send("Something went wrong !!");
+  }
+});
 
 app.post("/signup", async (req, res) => {
   console.log(req.body);
