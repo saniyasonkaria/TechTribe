@@ -25,6 +25,27 @@ app.get("/feed", async (req, res) => {
     res.status(400).send("Something went wrong !!");
   }
 });
+app.delete("/user", async (req, res) => {
+  try {
+    const userId = req.body.userId; //retrieving userID form the req body
+    await User.findByIdAndDelete(userId); //deleting user by id
+    res.send("User is deleted successfully !!");
+  } catch {
+    res.status(400).send("Something went wrong !!");
+  }
+});
+app.patch("/user", async (req, res) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { emailId: req.body.emailId },
+      req.body,
+      { returnDocument: "after" }
+    );
+    res.send(user, " User updated successfully !!");
+  } catch {
+    res.status(400).send("Something went wrong !!");
+  }
+});
 
 app.post("/signup", async (req, res) => {
   console.log(req.body);
