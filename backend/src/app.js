@@ -4,14 +4,12 @@ const UserModel = require("./models/userModel");
 const app = express();
 
 //request handler
+app.use(express.json()); //adding json middleware to read json format data
+
 app.post("/sighup", async (req, res) => {
-  //create a instance of user model
-  const user = new UserModel({
-    firstName: "Saniya",
-    lastName: "Sonkaria",
-    emailId: "saniya@sonkaria.com",
-    password: "password123",
-  });
+  console.log(req.body);
+  // create a instance of user model
+  const user = new UserModel(req.body);
   try {
     await user.save(); // user is saved in database through mongoose's .save() method
     res.send("user is created successfully!");
