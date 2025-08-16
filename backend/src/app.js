@@ -1,20 +1,24 @@
 const express = require("express");
 const connectDB = require("./config/database");
+const UserModel = require("./models/userModel");
 const app = express();
 
 //request handler
-app.use("/user", (req, res) => {
+app.post("/sighup", async (req, res) => {
+  //create a instance of user model
+  const user = new UserModel({
+    firstName: "Saniya",
+    lastName: "Sonkaria",
+    emailId: "saniya@sonkaria.com",
+    password: "password123",
+  });
   try {
-    throw new Error("User not found");
-    res.send("Sending admin data");
+    await user.save(); // user is saved in database through mongoose's .save() method
+    res.send("user is created successfully!");
   } catch (err) {
     console.log(err);
     res.status(500).send(err.message);
   }
-});
-app.use("/", (err, req, res, next) => {
-  console.log(err);
-  res.status(500).send("Something went wrong");
 });
 
 //connect to database
