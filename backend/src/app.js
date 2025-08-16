@@ -1,15 +1,27 @@
 const express = require("express");
 const connectDB = require("./config/database");
-const UserModel = require("./models/userModel");
+const User = require("./models/userModel");
 const app = express();
 
 //request handler
 app.use(express.json()); //adding json middleware to read json format data
+app.get("/user", async (req, res) => {
+  try {
+    const user = await User.find({ emailId: req.body.emailId });
+    if (user.length == 0) {
+      res.status(404).send("User not found !!");
+    } else {
+      res.send(user);
+    }
+  } catch {
+    res.status(400).send("Something went wrong !!");
+  }
+});
 
-app.post("/sighup", async (req, res) => {
+app.post("/signup", async (req, res) => {
   console.log(req.body);
   // create a instance of user model
-  const user = new UserModel(req.body);
+  const user = new User(req.body);
   try {
     await user.save(); // user is saved in database through mongoose's .save() method
     res.send("user is created successfully!");
