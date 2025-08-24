@@ -39,7 +39,8 @@ app.patch("/user", async (req, res) => {
     const user = await User.findOneAndUpdate(
       { emailId: req.body.emailId },
       req.body,
-      { returnDocument: "after" }
+      { returnDocument: "after" },
+      {runValidators:true}
     );
     res.send(user, " User updated successfully !!");
   } catch {
