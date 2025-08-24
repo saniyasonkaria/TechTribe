@@ -34,17 +34,32 @@ app.delete("/user", async (req, res) => {
     res.status(400).send("Something went wrong !!");
   }
 });
-app.patch("/user", async (req, res) => {
+app.patch("/user/:userId", async (req, res) => {
   try {
+    const userId = req.params?.userId;
+    const allowedUpdates = [
+      "firstName",
+      "lastName",
+      "password",
+      "age",
+      "gender",
+      "photoUrl",
+    ];
+    const isAllowedUpdate = Object.keys(req.body).every((update) =>
+      allowedUpdates.includes(update)
+    );
+    if (!isAllowedUpdate) {
+      throw new Error("You tried to update the not allowed fields!");
+    }
     const user = await User.findOneAndUpdate(
-      { emailId: req.body.emailId },
+      { _id: userId },
       req.body,
       { returnDocument: "after" },
-      {runValidators:true}
+      { runValidators: true }
     );
     res.send(user, " User updated successfully !!");
-  } catch {
-    res.status(400).send("Something went wrong !!");
+  } catch (err) {
+    res.status(400).send("User update failed !" + err.message);
   }
 });
 
