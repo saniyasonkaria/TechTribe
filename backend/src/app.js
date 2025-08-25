@@ -1,4 +1,5 @@
 const express = require("express");
+require("dotenv").config();
 const connectDB = require("./config/database");
 const User = require("./models/userModel");
 const app = express();
@@ -77,7 +78,8 @@ app.post("/signup", async (req, res) => {
 });
 
 //connect to database
-connectDB()
+const mongoUri = process.env.MONGO_URI || null;
+connectDB(mongoUri)
   .then(() => {
     console.log("Database connected successfully");
     // Start the server only after successful database connection
