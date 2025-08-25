@@ -3,6 +3,8 @@ require("dotenv").config();
 const connectDB = require("./config/database");
 const User = require("./models/userModel");
 const app = express();
+const validateSignupData = require("./utils/validate");
+const bcrypt = require("bcrypt");
 
 //request handler
 app.use(express.json()); //adding json middleware to read json format data
@@ -65,15 +67,43 @@ app.patch("/user/:userId", async (req, res) => {
 });
 
 app.post("/signup", async (req, res) => {
-  console.log(req.body);
-  // create a instance of user model
-  const user = new User(req.body);
   try {
+    //Never trust the req.body, always validate the data before using it
+    validateSignupData(req.body);
+    const { firstName, lastName, emailId, password } = req.body;
+    //encrypt the password - later
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    // create a instance of user model
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: hashedPassword,
+    });
     await user.save(); // user is saved in database through mongoose's .save() method
     res.send("user is created successfully!");
   } catch (err) {
     console.log(err);
     res.status(500).send(err.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Email : Invalid Credentials!!");
+    }
+    const match = await bcrypt.compare(password, user.password);
+    if (match) {
+      res.send("Login successfully!!");
+    } else {
+      throw new Error(" password Invalid Credentials!!");
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(400).send(err.message);
   }
 });
 
