@@ -1,17 +1,22 @@
-const adminAuth = (req, res, next) => {
-  const token = "xyz";
-  if (token != "xyz") {
-    res.status(403).send("Admin access denied");
-  } else {
+const User = require("../models/userModel");
+const jwt = require("jsonwebtoken");
+const userAuth = async (req, res, next) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      throw new Error("Token is not valid! Login again");
+    }
+    const { _id } = jwt.verify(token, "secretKey");
+    const user = await User.findById(_id);
+    if (!user) {
+      throw new Error("User not found!");
+    }
+    req.user = user;
     next();
+    
+  } catch (err) {
+    console.log(err);
+    res.status(400).send(err.message);
   }
 };
-const userAuth = (req, res, next) => {
-  const token = "xyzoo";
-  if (token != "xyz") {
-    res.status(403).send("User access denied");
-  } else {
-    next();
-  }
-};
-module.exports = { adminAuth, userAuth };
+module.exports = {userAuth };
