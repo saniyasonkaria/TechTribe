@@ -5,66 +5,13 @@ const User = require("./models/userModel");
 const app = express();
 const validateSignupData = require("./utils/validate");
 const bcrypt = require("bcrypt");
+const cookieparser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth");
 
 //request handler
 app.use(express.json()); //adding json middleware to read json format data
-app.get("/user", async (req, res) => {
-  try {
-    const user = await User.find({ emailId: req.body.emailId });
-    if (user.length == 0) {
-      res.status(404).send("User not found !!");
-    } else {
-      res.send(user);
-    }
-  } catch {
-    res.status(400).send("Something went wrong !!");
-  }
-});
-app.get("/feed", async (req, res) => {
-  try {
-    const feeds = await User.find();
-    res.send(feeds);
-  } catch {
-    res.status(400).send("Something went wrong !!");
-  }
-});
-app.delete("/user", async (req, res) => {
-  try {
-    const userId = req.body.userId; //retrieving userID form the req body
-    await User.findByIdAndDelete(userId); //deleting user by id
-    res.send("User is deleted successfully !!");
-  } catch {
-    res.status(400).send("Something went wrong !!");
-  }
-});
-app.patch("/user/:userId", async (req, res) => {
-  try {
-    const userId = req.params?.userId;
-    const allowedUpdates = [
-      "firstName",
-      "lastName",
-      "password",
-      "age",
-      "gender",
-      "photoUrl",
-    ];
-    const isAllowedUpdate = Object.keys(req.body).every((update) =>
-      allowedUpdates.includes(update)
-    );
-    if (!isAllowedUpdate) {
-      throw new Error("You tried to update the not allowed fields!");
-    }
-    const user = await User.findOneAndUpdate(
-      { _id: userId },
-      req.body,
-      { returnDocument: "after" },
-      { runValidators: true }
-    );
-    res.send(user, " User updated successfully !!");
-  } catch (err) {
-    res.status(400).send("User update failed !" + err.message);
-  }
-});
+app.use(cookieparser()); //adding cookie parser middleware to read cookies
 
 app.post("/signup", async (req, res) => {
   try {
@@ -84,7 +31,7 @@ app.post("/signup", async (req, res) => {
     res.send("user is created successfully!");
   } catch (err) {
     console.log(err);
-    res.status(500).send(err.message);
+    res.status(400).send(err.message);
   }
 });
 
@@ -95,12 +42,40 @@ app.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("Email : Invalid Credentials!!");
     }
+
     const match = await bcrypt.compare(password, user.password);
     if (match) {
+      //create a cookie with the help of jwt
+      var jwtToken = await jwt.sign({ _id: user._id }, "secretKey", {
+        expiresIn: "7d",
+      }); //60, "2 days", "10h", "7d".(60 means 60ms)
+      //send the token in the cookie
+      res.cookie("token", jwtToken, {
+        expires: new Date(Date.now() + 7*24*3600000), //1000 means 1 minute, 3600000 means lh, 24*3600000 means 1d
+      }); //cookie will be removed after the 8 hours
+      //send success response
       res.send("Login successfully!!");
     } else {
       throw new Error(" password Invalid Credentials!!");
     }
+  } catch (err) {
+    console.log(err);
+    res.status(400).send(err.message);
+  }
+});
+
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    //fetch user profile from database
+    res.send("user profile data" + req.user);
+  } catch (err) {
+    console.log(err);
+    res.status(400).send(err.message);
+  }
+});
+app.post("/sendRequest", userAuth, async (req, res) => {
+  try {
+    res.send(req.user.firstName + " sent the request !!");
   } catch (err) {
     console.log(err);
     res.status(400).send(err.message);
