@@ -28,4 +28,9 @@ const validateSignupData = (data) => {
     throw new Error("Age must be a number and at least 12");
   }
 };
-module.exports = validateSignupData;
+
+const validateProfileEditData = (req) => {
+  const allowedFields = ["firstName", "lastName", "age", "gender", "photoUrl"];
+  return Object.keys(req.body).every((field) => allowedFields.includes(field));
+};
+module.exports = { validateSignupData, validateProfileEditData };
