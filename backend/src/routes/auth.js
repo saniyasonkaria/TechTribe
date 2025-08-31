@@ -1,5 +1,7 @@
 const express = require("express");
-const {User} = require("../models/userModel")
+const User = require("../models/userModel");
+const { validateSignupData } = require("../utils/validate");
+const bcrypt = require("bcrypt");
 
 const authRouter = express.Router();
 
@@ -36,10 +38,10 @@ authRouter.post("/login", async (req, res) => {
     const match = await user.validatePassword(password);
     if (match) {
       //create a cookie with the help of jwt
-      var jwtToken = await user.getJWT()
+      var jwtToken = await user.getJWT();
       //send the token in the cookie
       res.cookie("token", jwtToken, {
-        expires: new Date(Date.now() + 7*24*3600000), //1000 means 1 minute, 3600000 means lh, 24*3600000 means 1d
+        expires: new Date(Date.now() + 7 * 24 * 3600000), //1000 means 1 minute, 3600000 means lh, 24*3600000 means 1d
       }); //cookie will be removed after the 8 hours
       //send success response
       res.send("Login successfully!!");
@@ -50,6 +52,11 @@ authRouter.post("/login", async (req, res) => {
     console.log(err);
     res.status(400).send(err.message);
   }
+});
+
+authRouter.post("/logout", (req, res) => {
+  res.cookie("token", null, { expires: new Date(Date.now()) });
+  res.send("User Logout Successfully!!");
 });
 
 module.exports = authRouter;
