@@ -22,7 +22,7 @@ authRouter.post("/signup", async (req, res) => {
     await user.save(); // user is saved in database through mongoose's .save() method
     res.send("user is created successfully!");
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(400).send(err.message);
   }
 });
@@ -49,7 +49,7 @@ authRouter.post("/login", async (req, res) => {
       throw new Error(" password Invalid Credentials!!");
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(400).send(err.message);
   }
 });
@@ -57,6 +57,9 @@ authRouter.post("/login", async (req, res) => {
 authRouter.post("/logout", (req, res) => {
   res.cookie("token", null, { expires: new Date(Date.now()) });
   res.send("User Logout Successfully!!");
+});
+
+authRouter.patch("/forgetPassword", async (req, res) => {
 });
 
 module.exports = authRouter;

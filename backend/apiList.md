@@ -4,6 +4,7 @@
 - POST /signup
 - POST /login
 - POST /logout
+- Patch /forgetPassword
 
 ## ProfileRourte
 - Get /profile/view

@@ -7,7 +7,7 @@ requestRouter.post("/sendRequest", userAuth, async (req, res) => {
   try {
     res.send(req.user.firstName + " sent the request !!");
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(400).send(err.message);
   }
 });
