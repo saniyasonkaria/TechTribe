@@ -24,4 +24,31 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
   }
 });
 
+userRouter.get("/user/connections", userAuth, async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const connectionRequest = await ConnectionRequest.find({
+      $or: [
+        { toUserId: loggedInUser._id, status: "accepted" },
+        { fromUserId: loggedInUser._id, status: "accepted" },
+      ],
+    })
+      .populate("fromUserId", USER_DATA)
+      .populate("toUserId", USER_DATA);
+
+    const data = connectionRequest.map((row) => {
+      if (loggedInUser._id.toString() == row.fromUserId._id.toString()) {
+        return row.toUserId;
+      } else return row.fromUserId;
+    });
+    res.json({
+      message: `All Connections found for ${loggedInUser.firstName}!`,
+      data,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(400).send(err.message);
+  }
+});
+
 module.exports = userRouter;
