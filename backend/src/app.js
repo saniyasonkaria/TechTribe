@@ -6,6 +6,7 @@ const cookieparser = require("cookie-parser");
 const authRouter = require("./routes/auth");
 const profileRoute = require("./routes/profile");
 const requestRouter = require("./routes/request");
+const userRouter = require("./routes/user");
 
 //request handler
 app.use(express.json()); //adding json middleware to read json format data
@@ -13,7 +14,8 @@ app.use(cookieparser()); //adding cookie parser middleware to read cookies
 
 app.use("/", authRouter);
 app.use("/", profileRoute);
-app.use("/", requestRouter)
+app.use("/", requestRouter);
+app.use("/", userRouter);
 
 //connect to database
 const mongoUri = process.env.MONGO_URI || null;
