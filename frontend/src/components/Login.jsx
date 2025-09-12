@@ -3,12 +3,14 @@ import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("abhi@gmail.com");
   const [password, setPassword] = useState("Abhi@123");
+  const [error,setError] =useState("");
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const handleLogin = async () => {
     try {
       let res = await axios.post(
@@ -19,10 +21,11 @@ const Login = () => {
         },
         { withCredentials: true }
       );
-      console.log("res", res.data);
+      navigate("/");
       dispatch(addUser(res.data));
     } catch (error) {
       console.error(error);
+      setError(error.response.data)
     }
   };
   return (
@@ -71,6 +74,7 @@ const Login = () => {
                 className="grow"
               />
             </label>
+            <div className="text-red-600">{error}</div>
             <div className="card-actions justify-center  mt-2">
               <button className="btn btn-primary" onClick={handleLogin}>
                 Login
