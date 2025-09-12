@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 profileRoute.get("/profile/view", userAuth, async (req, res) => {
   try {
     //fetch user profile from database
-    res.send("user profile data" + req.user);
+    res.send(req.user);
   } catch (err) {
     console.error(err);
     res.status(400).send(err.message);
@@ -27,8 +27,7 @@ profileRoute.patch("/profile/edit", userAuth, async (req, res) => {
     );
 
     await loggedInUser.save();
-    console.log(loggedInUser);
-    res.send("Profile Edited Successfully!!");
+    res.send(loggedInUser);
   } catch (err) {
     console.error(err);
     res.status(400).send(err.message);
