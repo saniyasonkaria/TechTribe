@@ -44,7 +44,7 @@ authRouter.post("/login", async (req, res) => {
         expires: new Date(Date.now() + 7 * 24 * 3600000), //1000 means 1 minute, 3600000 means lh, 24*3600000 means 1d
       }); //cookie will be removed after the 8 hours
       //send success response
-      res.send(`${user.firstName} login successfully!!`);
+      res.send(user);
     } else {
       throw new Error(" password Invalid Credentials!!");
     }
